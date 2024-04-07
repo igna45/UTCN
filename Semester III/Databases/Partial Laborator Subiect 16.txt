@@ -1,0 +1,289 @@
+-- Baza de date BANCA--
+
+-- Ajuta la re-crearea tabelelor (cand deja exista)
+DROP TABLE Persoane;
+DROP TABLE Conturi;
+DROP TABLE Carduri;
+DROP TABLE Miscari;
+---------------------------------------------------
+--01.
+
+CREATE TABLE Persoane (
+	IDPERS int NOT NULL ,
+	NUME varchar2 (20) NOT NULL ,
+	ADRESA varchar2 (20) NOT NULL ,
+	GEN varchar2 (1) NOT NULL ,
+	DATA_NASTERII date NOT NULL,
+	DATA_SYSDATE date NULL);
+
+CREATE TABLE Conturi (
+	NRCONT varchar2 (30) NOT NULL ,
+	SOLD float (20) NULL,
+	IDPERS int NOT NULL);
+
+CREATE TABLE Carduri (
+	NRCARD int NOT NULL ,
+	DATA_DE_LA date NOT NULL ,
+	DATA_LA date NOT NULL ,
+	LIMITA int NOT NULL ,
+	NRCONT varchar2(30) NOT NULL ,
+	TIP varchar2(20) NOT NULL ,
+	CATEGORIE varchar2(10) NOT NULL);
+
+CREATE TABLE Miscari (
+	NRCARD int NOT NULL ,
+	DATA_ORA timestamp NOT NULL ,
+	VALOARE int NOT NULL,
+	SCOP varchar2(20) NOT NULL);
+
+--adaugam cheile primare
+
+ALTER TABLE Persoane
+ADD CONSTRAINT PK_Persoane PRIMARY KEY (IDPERS);
+
+ALTER TABLE Conturi
+ADD CONSTRAINT PK_Conturi PRIMARY KEY (NRCONT);
+
+ALTER TABLE Carduri
+ADD CONSTRAINT PK_Carduri PRIMARY KEY (NRCARD);
+
+ALTER TABLE Miscari
+ADD CONSTRAINT PK_Miscari PRIMARY KEY (NRCARD, DATA_ORA);
+
+--adaugam cheile straine
+--idpers de conturi este cheie straina pt idpers de persoane
+--nrcont de carduri este cheie straina pt nrcont de conturi
+--nrcard de miscari este cheie straina pt nrcard de carduri
+
+
+ALTER TABLE Conturi
+ADD CONSTRAINT FK_ConturiPersoana
+FOREIGN KEY (IDPERS) REFERENCES Persoane(IDPERS);
+
+ALTER TABLE Carduri
+ADD CONSTRAINT FK_CarduriConturi
+FOREIGN KEY (NRCONT) REFERENCES Conturi(NRCONT);
+
+ALTER TABLE Miscari
+ADD CONSTRAINT FK_MiscariCarduri
+FOREIGN KEY (NRCARD) REFERENCES Carduri(NRCARD);
+
+--modificare definiţie tabelă Persoane pentru a adăuga coloana email
+
+ALTER TABLE Persoane
+ADD EMAIL varchar(25);
+
+--02.
+
+--constrângeri (la nivel atribut sau tuplă)
+
+ALTER TABLE Persoane ADD 
+  CONSTRAINT CK_PersoaneGen CHECK (GEN IN ('M', 'F'));
+
+ALTER TABLE Carduri ADD 
+  CONSTRAINT CK_CarduriTip CHECK (TIP IN ('VISA', 'MASTERCARD'));
+
+ALTER TABLE Carduri ADD 
+  CONSTRAINT CK_PersoaneCategorie CHECK (CATEGORIE IN ('DEBIT', 'CREDIT'));
+--a)
+ALTER TABLE Persoane ADD 
+  CONSTRAINT CHK_PersoanaDataNastere CHECK (MONTHS_BETWEEN(DATA_SYSDATE, DATA_NASTERII) >=216);
+--b)
+ALTER TABLE Miscari
+ADD CONSTRAINT CHK_MiscariScop CHECK (scop!='rata' or (scop='rata' AND valoare<=200));
+
+--inserare valori in tabele
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935654, 'Badic Mihai', 'ICPE SA', 'M', '12-Feb-2000', 'badeamihai@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935650, 'Bidian Dan', '468 Brasov', 'M', '09-Jun-1989', 'bidiandan@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935651, 'Bicu Aida', 'ICMET', 'F', '14-Aug-2001', 'bicuaida@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935652, 'Bogdan Octavian', '238 Sibiu', 'M', '12-Oct-1980', 'bogdanoctavian@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935653, 'Cazacu Maria', 'ICPE FR', 'F', '22-Sep-2003', 'cazacumaria@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935660, 'Lascu Daniel', 'SE nr 4', 'M', '12-Dec-2002', 'lascudaniel@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935655, 'Munteanu Adrian', 'ICL 45', 'M', '24-May-1979', 'munteanuadrian@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935656, 'Nicoara Tania', 'ICMET 4', 'F', '28-Mar-1985', 'nicoaratania@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935657, 'Pacurar Claudia', 'AGIR', 'F', '13-Jul-1981', 'pacurarclaudia@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (935659, 'Teodor Emil', 'DPESR nr 78', 'M', '12-Sep-1982', 'teodoremil@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (102301, 'Mircea Emil', 'Str. Princip nr. 12', 'M', '12-Sep-1998', 'mirceaemil@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (100, 'Popa Valentin', 'SA OP', 'M', '19-Nov-2001', 'popavalentin@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (900, 'Cristian Minge', 'AS PO', 'M', '19-Nov-2002', 'cristianminge@');
+
+Insert into Persoane (IDPERS, NUME, ADRESA, GEN, DATA_NASTERII, EMAIL) values (901, 'Mariana Stefania', 'DSF 56', 'F', '12-Dec-2002', 'marianastefania@');
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('401', 1000, 935656);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('101', 2000, 935656);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('400', 1000, 935656);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('102', 1000, 935657);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('103', 2500, 935652);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('104', 4500, 935659);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('105', 1500, 935650);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('106', 1100, 935653);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('107', 900, 935654);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('108', 3400, 935651);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('109', 2800, 935655);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('110', 4700, 935660);
+
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('200', 5000, 102301);
+
+--Insert into Conturi (NRCONT, SOLD, IDPERS) values ('13345678', 5000, 100);
+
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43524442, '22-Aug-2021', '22-Aug-2025', 300, '401', 'MASTERCARD', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43524443, '23-Aug-2022', '23-Aug-2026', 6000, '401', 'MASTERCARD', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43524444, '23-Jan-2022', '23-Jan-2026', 7000, '400', 'MASTERCARD', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526171, '20-Jan-2021', '20-Jan-2025', 7000, '107', 'MASTERCARD', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526172, '14-Mar-2021', '14-Mar-2025', 5000, '108', 'VISA', 'DEBIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526173, '11-Apr-2021', '11-Apr-2025', 6000, '109', 'MASTERCARD', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526174, '15-May-2021', '15-May-2025', 10000, '110', 'VISA', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526175, '18-Jun-2021', '18-Jun-2025', 11000, '101', 'VISA', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526176, '18-Jun-2021', '18-Jun-2025', 20000, '102', 'MASTERCARD', 'DEBIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526177, '24-Aug-2021', '24-Aug-2025', 14000, '103', 'VISA', 'DEBIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526178, '28-Nov-2021', '28-Nov-2025', 4000, '104', 'VISA', 'DEBIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526179, '29-Dec-2021', '29-Dec-2025', 3000, '105', 'MASTERCARD', 'CREDIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (43526180, '30-Sep-2022', '30-Sep-2026', 5000, '106', 'MASTERCARD', 'DEBIT');
+
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (102301, '02-Feb-2021', '02-Feb-2025', 5000, '200', 'VISA', 'DEBIT');
+
+--Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (101101, '01-Jan-2022', '31-Dec-2026', 5000, '13345678', 'MASTERCARD', 'DEBIT');
+
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43524442, to_date('02-Sep-2022 10:39:14 AM', 'DD-Mon-YYYY HH:MI:SS AM'), 400, 'facturi');
+
+--Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526170, to_date('22-Sep-2022 10:39:14 AM', 'DD-Mon-YYYY HH:MI:SS AM'), 200, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526171, to_date('16-Aug-2022 12:23:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 2000, 'plati cash');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526172, to_date('12-Dec-2022 05:30:12 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 290, 'facturi');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526173, to_date('02-Oct-2022 06:10:34 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 190, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526174, to_date('22-Jan-2022 06:49:10 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 1500, 'plati cash');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526175, to_date('07-Feb-2022 05:29:49 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 150, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526176, to_date('09-Jul-2022 06:36:29 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 500, 'facturi');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526177, to_date('18-Sep-2022 06:59:59 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 50, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526178, to_date('15-Nov-2022 05:21:59 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 350, 'facturi');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526179, to_date('02-May-2022 11:23:32 AM', 'DD-Mon-YYYY HH:MI:SS AM'), 3000, 'plati cash');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (43526180, to_date('05-Sep-2022 05:56:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 190, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (102301, to_date('01-Jan-2022 05:56:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 80, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (102301, to_date('01-Jan-2021 06:56:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 180, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (102301, to_date('20-Jun-2022 05:26:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 60, 'rata');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (102301, to_date('29-Jul-2022 08:26:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 600, 'facturi');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (102301, to_date('30-Aug-2022 03:26:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 1000, 'plati cash');
+
+Insert into Miscari (NRCARD, DATA_ORA, VALOARE, SCOP) values (102301, to_date('19-Dec-2022 02:26:20 PM', 'DD-Mon-YYYY HH:MI:SS PM'), 800, 'plati cash');
+
+--03.
+
+--interogari
+
+--a)
+SELECT *
+FROM Carduri 
+WHERE categorie = 'DEBIT'
+ORDER BY data_de_la DESC;
+
+--b)
+SELECT *
+FROM Miscari
+WHERE valoare BETWEEN 500 AND 1000
+ORDER BY scop, valoare DESC;
+
+--04.
+
+--interogari folosind operatorul JOIN
+
+--a)
+SELECT distinct nume
+FROM persoane JOIN conturi USING(idpers) JOIN carduri USING(nrcont)
+WHERE carduri.tip = 'MASTERCARD'; 
+
+--b)
+SELECT Distinct least(a.nrcont,b.nrcont) as "Cont1",greatest(a.nrcont,b.nrcont) as "Cont2"
+FROM (Conturi a join Conturi b on (a.idpers = b.idpers))
+WHERE a.nrcont != b.nrcont
+
+--06.
+
+--b)
+select min(valoare), max(valoare), avg(valoare)
+from miscari
+where nrcard IN( select nrcard from carduri where nrcont IN(select nrcont from conturi where idpers IN(select idpers from persoane where data_nasterii BETWEEN '01-Jan-1998' AND '31-Dec-1998')))
+AND data_ora BETWEEN to_date('01-Jan-2021', 'dd-mon-yyyy') AND to_date('31-Dec-2022', 'dd-mon-yyyy');
+
+
+--07.
+
+--a)
+Insert into Conturi (NRCONT, SOLD, IDPERS) values ('13345678', 5000, 100);
+Insert into Carduri (NRCARD, DATA_DE_LA, DATA_LA, LIMITA, NRCONT, TIP, CATEGORIE) values (101101, '01-Jan-2022', '31-Dec-2026', 5000, '13345678', 'MASTERCARD', 'DEBIT');
+
+--b)
+DELETE FROM Persoane WHERE idpers NOT IN (SELECT idpers FROM conturi);
+--select nume from Persoane  WHERE idpers NOT IN (SELECT idpers FROM conturi);
+--c)
+UPDATE carduri
+SET limita=
+(SELECT LIMITA+VALOARE
+FROM CARDURI C INNER JOIN MISCARI M ON (c.nrcard = m.nrcard)
+)
+WHERE nrcard IN 
+(SELECT nrcard 
+FROM Miscari
+WHERE ((data_ora BETWEEN to_date('01-Jan-2022', 'dd-mon-yyyy') AND to_date('31-Jan-2022', 'dd-mon-yyyy')) AND (limita<valoare)));
+
+
+
+
+
+
+
+
+
+
+
